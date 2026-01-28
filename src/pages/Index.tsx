@@ -3,6 +3,7 @@ import AboutSection from "@/components/ela/AboutSection";
 import DifferentialsSection from "@/components/ela/DifferentialsSection";
 import ScheduleSection from "@/components/ela/ScheduleSection";
 import BenefitsSection from "@/components/ela/BenefitsSection";
+import PricingSection from "@/components/ela/PricingSection";
 import ConversionSection from "@/components/ela/ConversionSection";
 import FAQSection from "@/components/ela/FAQSection";
 import Footer from "@/components/ela/Footer";
@@ -15,6 +16,7 @@ const Index = () => {
       <DifferentialsSection />
       <ScheduleSection />
       <BenefitsSection />
+      <PricingSection />
       <ConversionSection />
       <FAQSection />
       <Footer />
