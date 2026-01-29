@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, ArrowRight, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { Check, Sparkles, ArrowRight } from "lucide-react";
 
 type TierId = "individual" | "vip" | "dupla";
 
@@ -68,35 +66,10 @@ const pricingTiers: PricingTier[] = [
 ];
 
 const PricingSection = () => {
-  const [loadingTier, setLoadingTier] = useState<TierId | null>(null);
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleCheckout = async (tier: TierId) => {
-    setLoadingTier(tier);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe checkout in new tab
-        window.open(data.url, "_blank");
-      } else {
-        throw new Error("URL de checkout não recebida");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast({
-        title: "Erro ao iniciar pagamento",
-        description: "Tente novamente ou entre em contato pelo WhatsApp.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingTier(null);
-    }
+  const handleSelectTier = (tierId: TierId) => {
+    navigate(`/checkout?tier=${tierId}`);
   };
 
   return (
@@ -185,20 +158,10 @@ const PricingSection = () => {
                     ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
                     : "bg-graphite hover:bg-graphite/90"
                 }`}
-                onClick={() => handleCheckout(tier.id)}
-                disabled={loadingTier !== null}
+                onClick={() => handleSelectTier(tier.id)}
               >
-                {loadingTier === tier.id ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    Garantir Vaga
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
+                Garantir Vaga
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
 
               {/* Features List */}
@@ -220,7 +183,7 @@ const PricingSection = () => {
 
         {/* Payment Info */}
         <p className="text-center text-sm text-muted-foreground mt-10">
-          Pagamento seguro • Parcelamento em até 12x no cartão
+          Pagamento seguro • Cartão de crédito ou PIX
         </p>
       </div>
     </section>
