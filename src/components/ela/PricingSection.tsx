@@ -1,8 +1,25 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, ArrowRight } from "lucide-react";
+import { Check, Sparkles, ArrowRight, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-const pricingTiers = [
+type TierId = "individual" | "vip" | "dupla";
+
+interface PricingTier {
+  id: TierId;
+  name: string;
+  price: string;
+  period: string;
+  badge: string;
+  badgeDescription: string;
+  features: string[];
+  highlighted: boolean;
+}
+
+const pricingTiers: PricingTier[] = [
   {
+    id: "individual",
     name: "Individual",
     price: "R$ 997",
     period: "à vista",
@@ -17,6 +34,7 @@ const pricingTiers = [
     highlighted: false,
   },
   {
+    id: "vip",
     name: "VIP",
     price: "R$ 1.497",
     period: "à vista",
@@ -32,6 +50,7 @@ const pricingTiers = [
     highlighted: true,
   },
   {
+    id: "dupla",
     name: "Dupla",
     price: "R$ 1.797",
     period: "à vista",
@@ -49,6 +68,37 @@ const pricingTiers = [
 ];
 
 const PricingSection = () => {
+  const [loadingTier, setLoadingTier] = useState<TierId | null>(null);
+  const { toast } = useToast();
+
+  const handleCheckout = async (tier: TierId) => {
+    setLoadingTier(tier);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { tier },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in new tab
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("URL de checkout não recebida");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Erro ao iniciar pagamento",
+        description: "Tente novamente ou entre em contato pelo WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingTier(null);
+    }
+  };
+
   return (
     <section id="ingressos" className="py-20 md:py-32 bg-secondary/30">
       <div className="container px-4">
@@ -68,9 +118,9 @@ const PricingSection = () => {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {pricingTiers.map((tier, index) => (
+          {pricingTiers.map((tier) => (
             <div
-              key={index}
+              key={tier.id}
               className={`relative rounded-2xl p-8 transition-all duration-300 hover:shadow-xl ${
                 tier.highlighted
                   ? "bg-background border-2 border-primary shadow-lg scale-[1.02]"
@@ -135,12 +185,20 @@ const PricingSection = () => {
                     ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
                     : "bg-graphite hover:bg-graphite/90"
                 }`}
-                asChild
+                onClick={() => handleCheckout(tier.id)}
+                disabled={loadingTier !== null}
               >
-                <a href="#" className="flex items-center justify-center gap-2">
-                  Garantir Vaga
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </a>
+                {loadingTier === tier.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    Garantir Vaga
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </Button>
 
               {/* Features List */}
