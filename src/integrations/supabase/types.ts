@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          payment_method: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          phone: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          tier: Database["public"]["Enums"]["ticket_tier"]
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          phone: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          tier: Database["public"]["Enums"]["ticket_tier"]
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          phone?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          tier?: Database["public"]["Enums"]["ticket_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +67,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      payment_status: "pending" | "processing" | "paid" | "failed" | "refunded"
+      ticket_tier: "individual" | "vip" | "dupla"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +195,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_status: ["pending", "processing", "paid", "failed", "refunded"],
+      ticket_tier: ["individual", "vip", "dupla"],
+    },
   },
 } as const
