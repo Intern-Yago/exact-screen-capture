@@ -52,7 +52,7 @@ serve(async (req) => {
       throw new Error(`Tier inválido: ${tier}`);
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
 
     // Find or create Stripe customer
     let customerId: string;
