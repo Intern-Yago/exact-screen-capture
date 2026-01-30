@@ -10,14 +10,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Check, ShieldCheck } from "lucide-react";
 
-// Initialize Stripe with publishable key
-const stripePromise = loadStripe("pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu");
+// Initialize Stripe with publishable key and matching API version
+const stripePromise = loadStripe(
+  "pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu",
+  { apiVersion: "2024-12-18.acacia" as any }
+);
 
-type TierId = "individual" | "vip" | "dupla" | "teste";
+type TierId = "basico" | "intermediario" | "premium" | "teste";
 
 interface TierConfig {
   name: string;
@@ -26,20 +36,20 @@ interface TierConfig {
 }
 
 const TIERS: Record<TierId, TierConfig> = {
-  individual: {
-    name: "Individual",
-    price: "R$ 997",
-    description: "Acesso completo aos 2 dias de evento",
+  basico: {
+    name: "Básico",
+    price: "R$ 500",
+    description: "Acesso ao evento com benefícios essenciais",
   },
-  vip: {
-    name: "VIP",
-    price: "R$ 1.497",
-    description: "Experiência premium com benefícios exclusivos",
+  intermediario: {
+    name: "Intermediário",
+    price: "R$ 550",
+    description: "Acesso completo com benefícios adicionais",
   },
-  dupla: {
-    name: "Dupla",
-    price: "R$ 1.797",
-    description: "2 ingressos para você e uma amiga",
+  premium: {
+    name: "Premium",
+    price: "R$ 600",
+    description: "Experiência completa com benefícios exclusivos",
   },
   teste: {
     name: "Teste",
@@ -47,6 +57,21 @@ const TIERS: Record<TierId, TierConfig> = {
     description: "Ingresso de teste para validar o fluxo",
   },
 };
+
+const AREAS_ATUACAO = [
+  "Tecnologia",
+  "Saúde",
+  "Educação",
+  "Comércio",
+  "Indústria",
+  "Serviços",
+  "Agronegócio",
+  "Construção Civil",
+  "Financeiro",
+  "Consultoria",
+  "Marketing",
+  "Outros",
+];
 
 // Payment form component (inside Elements provider)
 const CheckoutForm = ({
@@ -134,7 +159,7 @@ const CheckoutForm = ({
 // Success view
 const SuccessView = ({ tier }: { tier: TierId }) => {
   const navigate = useNavigate();
-  const tierConfig = TIERS[tier];
+  const tierConfig = TIERS[tier] || TIERS.basico;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -146,10 +171,10 @@ const SuccessView = ({ tier }: { tier: TierId }) => {
           Pagamento Confirmado!
         </h1>
         <p className="text-muted-foreground mb-2">
-          Seu ingresso <strong>{tierConfig.name}</strong> para o ELA foi confirmado.
+          Seu ingresso <strong>{tierConfig.name}</strong> foi confirmado.
         </p>
         <p className="text-muted-foreground mb-8">
-          Você receberá um e-mail com os detalhes do evento.
+          Você receberá um e-mail com os detalhes.
         </p>
         <Button onClick={() => navigate("/")} variant="outline" className="w-full">
           Voltar para o site
@@ -165,7 +190,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const tier = (searchParams.get("tier") as TierId) || "individual";
+  const tier = (searchParams.get("tier") as TierId) || "basico";
   const isSuccess = searchParams.get("success") === "true";
 
   const [step, setStep] = useState<"form" | "payment" | "success">(
@@ -173,6 +198,10 @@ const CheckoutPage = () => {
   );
   const [formData, setFormData] = useState({
     fullName: "",
+    birthDate: "",
+    cpf: "",
+    cnpj: "",
+    areaAtuacao: "",
     email: "",
     phone: "",
   });
@@ -180,16 +209,76 @@ const CheckoutPage = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const tierConfig = TIERS[tier] || TIERS.individual;
+  const tierConfig = TIERS[tier] || TIERS.basico;
+
+  // Format CPF as user types
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+    return numbers
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
+
+  // Format CNPJ as user types
+  const formatCNPJ = (value: string) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 14);
+    return numbers
+      .replace(/(\d{2})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1/$2")
+      .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+  };
+
+  // Format phone as user types
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+    if (numbers.length <= 10) {
+      return numbers
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+    return numbers
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
+  };
+
+  // Format birth date as user types
+  const formatBirthDate = (value: string) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 8);
+    return numbers
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{2})(\d)/, "$1/$2");
+  };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
-    if (!formData.fullName || !formData.email || !formData.phone) {
+    // Validate required fields
+    if (!formData.fullName || !formData.birthDate || !formData.cpf || !formData.areaAtuacao || !formData.email || !formData.phone) {
       toast({
-        title: "Preencha todos os campos",
-        description: "Nome, e-mail e telefone são obrigatórios.",
+        title: "Preencha todos os campos obrigatórios",
+        description: "Nome, data de nascimento, CPF, área de atuação, e-mail e telefone são obrigatórios.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate CPF length
+    if (formData.cpf.replace(/\D/g, "").length !== 11) {
+      toast({
+        title: "CPF inválido",
+        description: "O CPF deve conter 11 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate CNPJ if provided
+    if (formData.cnpj && formData.cnpj.replace(/\D/g, "").length !== 14) {
+      toast({
+        title: "CNPJ inválido",
+        description: "O CNPJ deve conter 14 dígitos.",
         variant: "destructive",
       });
       return;
@@ -204,6 +293,10 @@ const CheckoutPage = () => {
           fullName: formData.fullName,
           email: formData.email,
           phone: formData.phone,
+          birthDate: formData.birthDate,
+          cpf: formData.cpf,
+          cnpj: formData.cnpj || null,
+          areaAtuacao: formData.areaAtuacao,
         },
       });
 
@@ -252,7 +345,7 @@ const CheckoutPage = () => {
       <header className="bg-background border-b border-border/50">
         <div className="container px-4 py-4">
           <button
-            onClick={() => navigate("/#ingressos")}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -276,9 +369,6 @@ const CheckoutPage = () => {
                 <p className="text-sm text-muted-foreground">
                   {tierConfig.description}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  6 e 7 de Março de 2026 • Brasília, DF
-                </p>
               </div>
               <p className="font-serif text-2xl font-bold text-primary">
                 {tierConfig.price}
@@ -295,11 +385,11 @@ const CheckoutPage = () => {
 
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Nome Completo</Label>
+                  <Label htmlFor="fullName">Nome Completo *</Label>
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="Maria Silva"
+                    placeholder="Maria Silva Santos"
                     value={formData.fullName}
                     onChange={(e) =>
                       setFormData({ ...formData, fullName: e.target.value })
@@ -309,7 +399,69 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
+                  <Label htmlFor="birthDate">Data de Nascimento *</Label>
+                  <Input
+                    id="birthDate"
+                    type="text"
+                    placeholder="DD/MM/AAAA"
+                    value={formData.birthDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, birthDate: formatBirthDate(e.target.value) })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF *</Label>
+                  <Input
+                    id="cpf"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    value={formData.cpf}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cpf: formatCPF(e.target.value) })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cnpj">CNPJ (opcional)</Label>
+                  <Input
+                    id="cnpj"
+                    type="text"
+                    placeholder="00.000.000/0000-00"
+                    value={formData.cnpj}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cnpj: formatCNPJ(e.target.value) })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="areaAtuacao">Área de Atuação *</Label>
+                  <Select
+                    value={formData.areaAtuacao}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, areaAtuacao: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione sua área de atuação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AREAS_ATUACAO.map((area) => (
+                        <SelectItem key={area} value={area}>
+                          {area}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -323,14 +475,14 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+                  <Label htmlFor="phone">Telefone (WhatsApp) *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="(11) 99999-9999"
                     value={formData.phone}
                     onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
+                      setFormData({ ...formData, phone: formatPhone(e.target.value) })
                     }
                     required
                   />

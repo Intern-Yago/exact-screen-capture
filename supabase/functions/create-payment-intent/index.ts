@@ -8,11 +8,11 @@ const corsHeaders = {
 };
 
 // Prices in cents for each tier
-const TIER_PRICES = {
-  individual: { amount: 99700, priceId: "price_1SuizV3aMoVTeUyes1BxIeYU" },
-  vip: { amount: 149700, priceId: "price_1Suizn3aMoVTeUyelrnxBSPD" },
-  dupla: { amount: 179700, priceId: "price_1Suj0G3aMoVTeUyeJuuyYqhl" },
-  teste: { amount: 100, priceId: null }, // R$ 1,00 for testing (Stripe minimum)
+const TIER_PRICES: Record<string, { amount: number; priceId: string | null }> = {
+  basico: { amount: 50000, priceId: null }, // R$ 500,00
+  intermediario: { amount: 55000, priceId: null }, // R$ 550,00
+  premium: { amount: 60000, priceId: null }, // R$ 600,00
+  teste: { amount: 100, priceId: null }, // R$ 1,00 for testing
 };
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
@@ -39,7 +39,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { tier, fullName, email, phone } = await req.json();
+    const { tier, fullName, email, phone, birthDate, cpf, cnpj, areaAtuacao } = await req.json();
     logStep("Request received", { tier, fullName, email, phone: phone?.slice(0, 4) + "***" });
 
     // Validate required fields
@@ -47,11 +47,12 @@ serve(async (req) => {
       throw new Error("Campos obrigatórios: tier, fullName, email, phone");
     }
 
-    const tierConfig = TIER_PRICES[tier as keyof typeof TIER_PRICES];
+    const tierConfig = TIER_PRICES[tier];
     if (!tierConfig) {
       throw new Error(`Tier inválido: ${tier}`);
     }
 
+    // Use stable API version that matches frontend
     const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
 
     // Find or create Stripe customer
@@ -66,13 +67,19 @@ serve(async (req) => {
         email,
         name: fullName,
         phone,
-        metadata: { source: "ela_event" },
+        metadata: { 
+          source: "checkout",
+          cpf: cpf || "",
+          cnpj: cnpj || "",
+          birthDate: birthDate || "",
+          areaAtuacao: areaAtuacao || "",
+        },
       });
       customerId = newCustomer.id;
       logStep("New customer created", { customerId });
     }
 
-    // Create PaymentIntent with card (PIX requires activation in Stripe Dashboard)
+    // Create PaymentIntent with card
     const paymentIntent = await stripe.paymentIntents.create({
       amount: tierConfig.amount,
       currency: "brl",
@@ -83,6 +90,10 @@ serve(async (req) => {
         fullName,
         email,
         phone,
+        cpf: cpf || "",
+        cnpj: cnpj || "",
+        birthDate: birthDate || "",
+        areaAtuacao: areaAtuacao || "",
       },
     });
 
@@ -98,7 +109,7 @@ serve(async (req) => {
         full_name: fullName,
         email,
         phone,
-        tier,
+        tier: tier === "basico" ? "individual" : tier === "intermediario" ? "vip" : tier === "premium" ? "dupla" : "individual",
         amount_cents: tierConfig.amount,
         payment_status: "pending",
         stripe_payment_intent_id: paymentIntent.id,
