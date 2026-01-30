@@ -185,12 +185,24 @@ const SuccessView = ({ tier }: { tier: TierId }) => {
 };
 
 // Main checkout page
+// Map old tier names to new ones for backwards compatibility
+const TIER_MAPPING: Record<string, TierId> = {
+  individual: "basico",
+  vip: "intermediario",
+  dupla: "premium",
+  basico: "basico",
+  intermediario: "intermediario",
+  premium: "premium",
+  teste: "teste",
+};
+
 const CheckoutPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const tier = (searchParams.get("tier") as TierId) || "basico";
+  const rawTier = searchParams.get("tier") || "basico";
+  const tier = TIER_MAPPING[rawTier] || "basico";
   const isSuccess = searchParams.get("success") === "true";
 
   const [step, setStep] = useState<"form" | "payment" | "success">(
