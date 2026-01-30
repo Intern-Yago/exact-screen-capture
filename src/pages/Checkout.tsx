@@ -374,6 +374,7 @@ const CheckoutPage = () => {
                   },
                   locale: "pt-BR",
                 }}
+                key={clientSecret}
               >
                 <CheckoutForm orderId={orderId} onSuccess={handlePaymentSuccess} />
               </Elements>
