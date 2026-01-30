@@ -71,12 +71,12 @@ serve(async (req) => {
       logStep("New customer created", { customerId });
     }
 
-    // Create PaymentIntent with card and PIX
+    // Create PaymentIntent with card (PIX requires activation in Stripe Dashboard)
     const paymentIntent = await stripe.paymentIntents.create({
       amount: tierConfig.amount,
       currency: "brl",
       customer: customerId,
-      payment_method_types: ["card", "pix"],
+      payment_method_types: ["card"],
       metadata: {
         tier,
         fullName,
