@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 
-type TierId = "individual" | "vip" | "dupla";
+type TierId = "basico" | "intermediario" | "premium";
 
 interface PricingTier {
   id: TierId;
@@ -17,9 +17,9 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    id: "individual",
-    name: "Individual",
-    price: "R$ 997",
+    id: "basico",
+    name: "Básico",
+    price: "R$ 500",
     period: "à vista",
     badge: "Acesso completo",
     badgeDescription: "2 dias de imersão",
@@ -32,14 +32,14 @@ const pricingTiers: PricingTier[] = [
     highlighted: false,
   },
   {
-    id: "vip",
-    name: "VIP",
-    price: "R$ 1.497",
+    id: "intermediario",
+    name: "Intermediário",
+    price: "R$ 550",
     period: "à vista",
-    badge: "Experiência Premium",
-    badgeDescription: "Benefícios exclusivos",
+    badge: "Experiência Completa",
+    badgeDescription: "Benefícios adicionais",
     features: [
-      "Tudo do plano Individual",
+      "Tudo do plano Básico",
       "Assento nas primeiras filas",
       "Mentoria em grupo pós-evento",
       "Acesso ao grupo exclusivo",
@@ -48,18 +48,18 @@ const pricingTiers: PricingTier[] = [
     highlighted: true,
   },
   {
-    id: "dupla",
-    name: "Dupla",
-    price: "R$ 1.797",
+    id: "premium",
+    name: "Premium",
+    price: "R$ 600",
     period: "à vista",
-    badge: "2 ingressos",
-    badgeDescription: "Traga uma amiga",
+    badge: "VIP",
+    badgeDescription: "Experiência exclusiva",
     features: [
-      "2 acessos completos ao evento",
-      "Material de apoio digital",
-      "Certificado de participação",
-      "Coffee break incluso",
-      "Economia de R$ 197",
+      "Tudo do plano Intermediário",
+      "Mentoria individual pós-evento",
+      "Acesso prioritário a eventos futuros",
+      "Networking exclusivo",
+      "Material complementar premium",
     ],
     highlighted: false,
   },
