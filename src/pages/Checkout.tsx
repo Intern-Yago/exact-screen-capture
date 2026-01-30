@@ -17,7 +17,7 @@ import { ArrowLeft, Loader2, Check, ShieldCheck } from "lucide-react";
 // Initialize Stripe with publishable key
 const stripePromise = loadStripe("pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu");
 
-type TierId = "individual" | "vip" | "dupla";
+type TierId = "individual" | "vip" | "dupla" | "teste";
 
 interface TierConfig {
   name: string;
@@ -40,6 +40,11 @@ const TIERS: Record<TierId, TierConfig> = {
     name: "Dupla",
     price: "R$ 1.797",
     description: "2 ingressos para você e uma amiga",
+  },
+  teste: {
+    name: "Teste",
+    price: "R$ 1,00",
+    description: "Ingresso de teste para validar o fluxo",
   },
 };
 
