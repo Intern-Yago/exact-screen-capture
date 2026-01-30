@@ -12,6 +12,7 @@ const TIER_PRICES = {
   individual: { amount: 99700, priceId: "price_1SuizV3aMoVTeUyes1BxIeYU" },
   vip: { amount: 149700, priceId: "price_1Suizn3aMoVTeUyelrnxBSPD" },
   dupla: { amount: 179700, priceId: "price_1Suj0G3aMoVTeUyeJuuyYqhl" },
+  teste: { amount: 100, priceId: null }, // R$ 1,00 for testing (Stripe minimum)
 };
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
