@@ -21,10 +21,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Check, ShieldCheck } from "lucide-react";
 
-// Initialize Stripe with publishable key and matching API version
+// Initialize Stripe with publishable key
 const stripePromise = loadStripe(
-  "pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu",
-  { apiVersion: "2024-12-18.acacia" as any }
+  "pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu"
 );
 
 type TierId = "basico" | "intermediario" | "premium" | "teste";
