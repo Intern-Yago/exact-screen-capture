@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     // Use stable API version that matches frontend
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Find or create Stripe customer
     let customerId: string;
