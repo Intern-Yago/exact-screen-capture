@@ -1,51 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, MessageCircle } from "lucide-react";
 import elaLogo from "@/assets/ela-logo.png";
+import marbleBackground from "@/assets/marble-background.png";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Marbled pink background */}
+      {/* Marble background image */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          background: `
-            linear-gradient(135deg, 
-              hsl(var(--accent)) 0%, 
-              hsl(var(--primary) / 0.15) 25%, 
-              hsl(var(--accent)) 50%, 
-              hsl(var(--primary) / 0.1) 75%, 
-              hsl(var(--accent)) 100%
-            )
-          `,
+          backgroundImage: `url(${marbleBackground})`,
         }}
       />
       
-      {/* Marble texture overlay */}
-      <div 
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `
-            radial-gradient(ellipse at 20% 30%, hsl(var(--primary) / 0.2) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 20%, hsl(var(--primary) / 0.15) 0%, transparent 40%),
-            radial-gradient(ellipse at 60% 70%, hsl(var(--primary) / 0.1) 0%, transparent 45%),
-            radial-gradient(ellipse at 30% 80%, hsl(var(--primary) / 0.18) 0%, transparent 35%),
-            radial-gradient(ellipse at 90% 60%, hsl(var(--primary) / 0.12) 0%, transparent 50%)
-          `,
-        }}
-      />
-      
-      {/* Decorative veins for marble effect */}
-      <div 
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: `
-            linear-gradient(45deg, transparent 40%, hsl(var(--primary) / 0.3) 45%, transparent 55%),
-            linear-gradient(-45deg, transparent 40%, hsl(var(--primary) / 0.2) 48%, transparent 52%)
-          `,
-          backgroundSize: '200% 200%',
-        }}
-      />
+      {/* Subtle overlay for better text readability */}
+      <div className="absolute inset-0 bg-background/20" />
       
       <div className="container relative z-10 px-4 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
@@ -58,13 +28,21 @@ const HeroSection = () => {
             />
           </div>
           
-          {/* Tag do evento - agora acima da data */}
-          <div className="animate-fade-up delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 mb-4">
+          {/* Headline principal */}
+          <h1 className="animate-fade-up delay-100 font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-tight text-foreground mb-6">
+            Empreendedorismo,{" "}
+            <span className="text-primary italic">Liderança</span>{" "}
+            <br className="hidden md:block" />
+            e Autenticidade
+          </h1>
+          
+          {/* Tag do evento - acima da data */}
+          <div className="animate-fade-up delay-200 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 mb-4">
             <span className="text-sm font-medium text-primary">Treinamento Presencial Exclusivo</span>
           </div>
           
           {/* Info do evento */}
-          <div className="animate-fade-up delay-200 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10">
+          <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10">
             <div className="flex items-center gap-2 text-foreground">
               <Calendar className="w-5 h-5 text-primary" />
               <span className="font-medium">6 e 7 de Março de 2026</span>
@@ -76,13 +54,13 @@ const HeroSection = () => {
           </div>
           
           {/* Subheadline */}
-          <p className="animate-fade-up delay-300 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="animate-fade-up delay-400 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
             Dois dias intensos de imersão prática para mulheres empreendedoras que querem 
             <span className="text-foreground font-medium"> sair com clareza, estratégia e decisões</span> para o seu negócio digital.
           </p>
           
           {/* CTAs */}
-          <div className="animate-fade-up delay-400 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="animate-fade-up delay-500 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button 
               size="lg" 
               className="w-full sm:w-auto px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-lg shadow-primary/25"
