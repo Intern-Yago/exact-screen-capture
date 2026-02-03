@@ -9,7 +9,7 @@ const days = [
     icon: Search,
     items: [
       "Mapeamento da situação atual",
-      "Identificação de gargalos e oportunidades",
+      "Identificação de problemas e oportunidades",
       "Análise de posicionamento e oferta",
       "Clareza sobre onde você está",
     ],
