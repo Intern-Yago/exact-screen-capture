@@ -11,6 +11,13 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      "c8a68c49108e.ngrok-free.app",
+      "elaparamulheres.com.br",
+      "www.elaparamulheres.com.br",
+    ],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
