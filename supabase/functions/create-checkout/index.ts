@@ -8,9 +8,9 @@ const corsHeaders = {
 
 // Price IDs for each ticket tier
 const PRICE_IDS = {
-  individual: "price_1SuizV3aMoVTeUyes1BxIeYU",
-  vip: "price_1Suizn3aMoVTeUyelrnxBSPD",
-  dupla: "price_1Suj0G3aMoVTeUyeJuuyYqhl",
+  individual: "price_1Swt4f3VZv7Wqzya5DTb88Io",
+  vip: "price_1Swt5i3VZv7Wqzya22co3rE0",
+  dupla: "price_1Swt5G3VZv7WqzyaMBZ0zbrJ",
 };
 
 const logStep = (step: string, details?: Record<string, unknown>) => {
