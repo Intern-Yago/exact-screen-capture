@@ -13,7 +13,7 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
   console.log(`[CONFIRM-PAYMENT] ${step}${detailsStr}`);
 };
 
-async function saveToMySQL(orderData: Record<string, unknown>) {
+async function updateMySQLOrder(paymentIntentId: string, paymentStatus: string, paymentMethod: string) {
   try {
     const mysqlHost = Deno.env.get("MYSQL_HOST");
     const mysqlUser = Deno.env.get("MYSQL_USER");
@@ -21,7 +21,7 @@ async function saveToMySQL(orderData: Record<string, unknown>) {
     const mysqlDatabase = Deno.env.get("MYSQL_DATABASE");
 
     if (!mysqlHost || !mysqlUser || !mysqlPassword || !mysqlDatabase) {
-      logStep("MySQL credentials not configured, skipping MySQL save");
+      logStep("MySQL credentials not configured, skipping MySQL update");
       return;
     }
 
@@ -33,55 +33,19 @@ async function saveToMySQL(orderData: Record<string, unknown>) {
       port: 3306,
     });
 
-    logStep("Connected to MySQL");
+    logStep("Connected to MySQL for update");
 
-    // Create table if not exists
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS orders (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        full_name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        phone VARCHAR(50) NOT NULL,
-        birth_date VARCHAR(20),
-        cpf VARCHAR(20),
-        cnpj VARCHAR(25),
-        area_atuacao VARCHAR(100),
-        tier VARCHAR(50) NOT NULL,
-        amount_cents INT NOT NULL,
-        payment_method VARCHAR(50),
-        payment_status VARCHAR(50) NOT NULL DEFAULT 'pending',
-        stripe_payment_intent_id VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Insert order
-    const result = await client.execute(
-      `INSERT INTO orders (full_name, email, phone, birth_date, cpf, cnpj, area_atuacao, tier, amount_cents, payment_method, payment_status, stripe_payment_intent_id) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        orderData.full_name,
-        orderData.email,
-        orderData.phone,
-        orderData.birth_date || null,
-        orderData.cpf || null,
-        orderData.cnpj || null,
-        orderData.area_atuacao || null,
-        orderData.tier,
-        orderData.amount_cents,
-        orderData.payment_method || "boleto",
-        orderData.payment_status || "paid",
-        orderData.stripe_payment_intent_id || null,
-      ]
+    // Update order status
+    await client.execute(
+      `UPDATE orders SET payment_status = ?, payment_method = ?, updated_at = NOW() WHERE stripe_payment_intent_id = ?`,
+      [paymentStatus, paymentMethod, paymentIntentId]
     );
 
-    logStep("Order saved to MySQL", { insertId: result.lastInsertId });
+    logStep("Order updated in MySQL", { paymentIntentId, paymentStatus, paymentMethod });
 
     await client.close();
   } catch (error) {
-    logStep("MySQL save error", { error: error instanceof Error ? error.message : String(error) });
-    // Don't throw - we still want to complete the payment confirmation
+    logStep("MySQL update error", { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -137,40 +101,25 @@ serve(async (req) => {
         paymentStatus = "pending";
     }
 
-    // Get order data from Supabase
-    const { data: orderData, error: fetchError } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("stripe_payment_intent_id", paymentIntentId)
-      .single();
-
-    if (fetchError) {
-      logStep("Error fetching order", { error: fetchError.message });
-    }
+    const paymentMethod = paymentIntent.payment_method_types?.[0] || "card";
 
     // Update order in Supabase
     const { error: updateError } = await supabase
       .from("orders")
       .update({
         payment_status: paymentStatus,
-        payment_method: paymentIntent.payment_method_types?.[0] || null,
+        payment_method: paymentMethod,
       })
       .eq("stripe_payment_intent_id", paymentIntentId);
 
     if (updateError) {
-      logStep("Error updating order", { error: updateError.message });
+      logStep("Error updating order in Supabase", { error: updateError.message });
     } else {
       logStep("Order updated in Supabase", { paymentStatus });
     }
 
-    // If payment succeeded, also save to MySQL
-    if (paymentStatus === "paid" && orderData) {
-      await saveToMySQL({
-        ...orderData,
-        payment_status: paymentStatus,
-        payment_method: paymentIntent.payment_method_types?.[0] || "boleto",
-      });
-    }
+    // Also update MySQL order status
+    await updateMySQLOrder(paymentIntentId, paymentStatus, paymentMethod);
 
     return new Response(
       JSON.stringify({

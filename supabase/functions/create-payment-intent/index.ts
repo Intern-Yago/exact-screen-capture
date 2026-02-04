@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,7 +53,6 @@ serve(async (req) => {
       throw new Error(`Tier inválido: ${tier}`);
     }
 
-    // Use stable API version that matches frontend
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Find or create Stripe customer
@@ -79,17 +79,20 @@ serve(async (req) => {
       logStep("New customer created", { customerId });
     }
 
-    // Create PaymentIntent with card (credit with installments + debit)
+    // Create PaymentIntent with card and boleto payment methods
     const paymentIntent = await stripe.paymentIntents.create({
       amount: tierConfig.amount,
       currency: "brl",
       customer: customerId,
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "boleto"],
       payment_method_options: {
         card: {
           installments: {
             enabled: true,
           },
+        },
+        boleto: {
+          expires_after_days: 3,
         },
       },
       metadata: {
@@ -109,7 +112,7 @@ serve(async (req) => {
       amount: tierConfig.amount 
     });
 
-    // Create order in database
+    // Create order in Supabase database
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -126,10 +129,79 @@ serve(async (req) => {
       .single();
 
     if (orderError) {
-      logStep("Error creating order", { error: orderError.message });
-      // Don't fail the payment flow if order creation fails
+      logStep("Error creating order in Supabase", { error: orderError.message });
     } else {
-      logStep("Order created", { orderId: order.id });
+      logStep("Order created in Supabase", { orderId: order.id });
+    }
+
+    // Also save to MySQL immediately (with pending status)
+    try {
+      const mysqlHost = Deno.env.get("MYSQL_HOST");
+      const mysqlUser = Deno.env.get("MYSQL_USER");
+      const mysqlPassword = Deno.env.get("MYSQL_PASSWORD");
+      const mysqlDatabase = Deno.env.get("MYSQL_DATABASE");
+
+      if (mysqlHost && mysqlUser && mysqlPassword && mysqlDatabase) {
+        const client = await new Client().connect({
+          hostname: mysqlHost,
+          username: mysqlUser,
+          password: mysqlPassword,
+          db: mysqlDatabase,
+          port: 3306,
+        });
+
+        logStep("Connected to MySQL");
+
+        // Create table if not exists
+        await client.execute(`
+          CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            full_name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            phone VARCHAR(50) NOT NULL,
+            birth_date VARCHAR(20),
+            cpf VARCHAR(20),
+            cnpj VARCHAR(25),
+            area_atuacao VARCHAR(100),
+            tier VARCHAR(50) NOT NULL,
+            amount_cents INT NOT NULL,
+            payment_method VARCHAR(50),
+            payment_status VARCHAR(50) NOT NULL DEFAULT 'pending',
+            stripe_payment_intent_id VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          )
+        `);
+
+        // Insert order
+        const result = await client.execute(
+          `INSERT INTO orders (full_name, email, phone, birth_date, cpf, cnpj, area_atuacao, tier, amount_cents, payment_method, payment_status, stripe_payment_intent_id) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            fullName,
+            email,
+            phone,
+            birthDate || null,
+            cpf || null,
+            cnpj || null,
+            areaAtuacao || null,
+            tier,
+            tierConfig.amount,
+            "pending", // Will be updated when payment confirms
+            "pending",
+            paymentIntent.id,
+          ]
+        );
+
+        logStep("Order saved to MySQL", { insertId: result.lastInsertId });
+
+        await client.close();
+      } else {
+        logStep("MySQL credentials not configured, skipping MySQL save");
+      }
+    } catch (mysqlError) {
+      logStep("MySQL save error", { error: mysqlError instanceof Error ? mysqlError.message : String(mysqlError) });
+      // Don't fail the payment flow if MySQL save fails
     }
 
     return new Response(
