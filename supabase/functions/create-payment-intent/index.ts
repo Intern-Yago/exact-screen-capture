@@ -79,20 +79,18 @@ serve(async (req) => {
       logStep("New customer created", { customerId });
     }
 
-    // Create PaymentIntent with card and boleto payment methods
+    // Create PaymentIntent with card payment method
+    // Note: To enable boleto, it must be activated in Stripe Dashboard > Settings > Payment methods
     const paymentIntent = await stripe.paymentIntents.create({
       amount: tierConfig.amount,
       currency: "brl",
       customer: customerId,
-      payment_method_types: ["card", "boleto"],
+      payment_method_types: ["card"],
       payment_method_options: {
         card: {
           installments: {
             enabled: true,
           },
-        },
-        boleto: {
-          expires_after_days: 3,
         },
       },
       metadata: {
