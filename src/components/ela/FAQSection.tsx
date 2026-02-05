@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     question: "Qual o horário dos dois dias?",
-    answer: "O evento acontece nos dias 6 e 7 de março de 2026. Cada dia terá programação integral, das 9h às 18h, com intervalos para networking e coffee breaks inclusos.",
+    answer: "O evento acontece nos dias 6 e 7 de março de 2026. No dia 6, das 14h às 20h. No dia 7, das 10h às 20h. Intervalos para networking e coffee breaks inclusos.",
   },
   {
     question: "Posso parcelar o ingresso?",
@@ -21,10 +21,6 @@ const faqs = [
   {
     question: "O evento é presencial ou online?",
     answer: "O ELA é 100% presencial. Acreditamos que a imersão presencial, as conexões pessoais e a energia do grupo são essenciais para a transformação que propomos.",
-  },
-  {
-    question: "Posso pedir reembolso?",
-    answer: "Sim, oferecemos política de reembolso integral até 15 dias antes do evento. Após esse período, não será possível solicitar reembolso, mas você pode transferir sua vaga para outra pessoa.",
   },
   {
     question: "Preciso levar algo para o evento?",
