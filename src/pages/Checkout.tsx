@@ -23,7 +23,7 @@ import { ArrowLeft, Loader2, Check, ShieldCheck } from "lucide-react";
 
 // Initialize Stripe with publishable key
 const stripePromise = loadStripe(
-  "pk_test_51SuiyN3aMoVTeUyesMzBXDlSyxADyT18NybQGOTb7fR6RexPfT8nP5NaSGAGMGFxuFrNF0n6cC3NNRmhvnvEaHZd00lDQVCgOu"
+  "pk_live_51SubWm3VZv7WqzyaKCWcFMxXHfH2QOc8v7YFSgH7lVOFxoHyJRpbCpGpYyq4FyUiNfWHFOqnPf0qVMqJhDq3qeQF00yGwJvQN0"
 );
 
 type TierId = "basico" | "intermediario" | "premium" | "teste";
