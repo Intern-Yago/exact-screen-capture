@@ -16,25 +16,34 @@ export type Database = {
     Tables: {
       leads: {
         Row: {
-          created_at: string
-          email: string
-          id: string
-          phone: string
+          id: number
+          nome: string | null
         }
         Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          phone: string
+          id?: never
+          nome?: string | null
         }
         Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          phone?: string
+          id?: never
+          nome?: string | null
         }
         Relationships: []
-      },
+      }
+      minha_tabela: {
+        Row: {
+          id: number
+          nome: string | null
+        }
+        Insert: {
+          id?: never
+          nome?: string | null
+        }
+        Update: {
+          id?: never
+          nome?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount_cents: number
