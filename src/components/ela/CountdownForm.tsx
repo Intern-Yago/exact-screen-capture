@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Timer } from "lucide-react";
 
 const CountdownForm = () => {
   const { toast } = useToast();
@@ -46,11 +45,20 @@ const CountdownForm = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("leads")
-        .insert([{ email, phone }]);
+      // Tenta salvar via Edge Function (que salva no MySQL)
+      const { data, error } = await supabase.functions.invoke("save-lead-to-mysql", {
+        body: { email, phone },
+      });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Edge Function error:", error);
+        // Fallback para a tabela do Supabase caso a function falhe ou não esteja implantada
+        const { error: supabaseError } = await supabase
+          .from("leads")
+          .insert([{ email, phone }]);
+        
+        if (supabaseError) throw supabaseError;
+      }
 
       toast({
         title: "Sucesso!",
@@ -63,7 +71,7 @@ const CountdownForm = () => {
       toast({
         variant: "destructive",
         title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar seus dados. Tente novamente.",
+        description: "Ocorreu um erro ao salvar seus dados. Certifique-se de que a tabela 'leads' existe no seu banco de dados.",
       });
     } finally {
       setLoading(false);
