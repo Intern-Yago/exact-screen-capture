@@ -1,1 +1,4 @@
 project_id = "cyktlzoukepqlezzlaui"
+
+[functions.save-lead-to-mysql]
+verify_jwt = false
