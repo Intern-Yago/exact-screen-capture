@@ -28,6 +28,15 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+
+    console.log("STRIPE_SECRET_KEY prefix:", stripeKey?.slice(0, 7));
+    console.log(
+      "STRIPE_SECRET_KEY mode:",
+      stripeKey?.startsWith("sk_live_") ? "LIVE" : "TEST/UNKNOWN"
+    );
+
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
 
@@ -42,7 +51,7 @@ serve(async (req) => {
     const priceId = PRICE_IDS[tier as keyof typeof PRICE_IDS];
     logStep("Price ID determined", { tier, priceId });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2026-01-28.clover" });
 
     // Check if customer exists by email (for guest checkout)
     let customerId: string | undefined;
@@ -70,7 +79,7 @@ serve(async (req) => {
       success_url: `${origin}/?payment=success`,
       cancel_url: `${origin}/?payment=canceled`,
       locale: "pt-BR",
-      payment_method_types: ["card", "boleto"],
+      payment_method_types: ["card"],
       billing_address_collection: "required",
     });
 

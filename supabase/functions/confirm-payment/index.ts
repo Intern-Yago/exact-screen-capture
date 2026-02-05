@@ -67,7 +67,7 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-09-30.clover" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2026-01-28.clover" });
 
     const { paymentIntentId } = await req.json();
     logStep("Checking payment", { paymentIntentId });

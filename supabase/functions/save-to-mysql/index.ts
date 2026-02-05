@@ -84,7 +84,7 @@ serve(async (req) => {
         areaAtuacao || null,
         tier,
         amountCents,
-        paymentMethod || "boleto",
+        paymentMethod,
         paymentStatus || "paid",
         stripePaymentIntentId || null,
       ]

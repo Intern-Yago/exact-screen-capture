@@ -88,9 +88,7 @@ const CheckoutForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
     setIsProcessing(true);
 
@@ -109,15 +107,31 @@ const CheckoutForm = ({
         variant: "destructive",
       });
       setIsProcessing(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      return;
+    }
+
+    if (paymentIntent?.status === "succeeded") {
       onSuccess();
-    } else if (paymentIntent && paymentIntent.status === "processing") {
+      return;
+    }
+
+    if (paymentIntent?.status === "processing") {
       toast({
         title: "Pagamento em processamento",
-        description: "Seu pagamento está sendo processado. Você receberá uma confirmação por e-mail.",
+        description:
+          "Seu pagamento está sendo processado. Você receberá uma confirmação por e-mail.",
       });
       onSuccess();
+      return;
     }
+
+    toast({
+      title: "Pagamento não concluído",
+      description: "O pagamento não foi concluído. Tente novamente.",
+      variant: "destructive",
+    });
+
+    setIsProcessing(false);
   };
 
   return (
@@ -166,16 +180,24 @@ const SuccessView = ({ tier }: { tier: TierId }) => {
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="w-10 h-10 text-green-600" />
         </div>
+
         <h1 className="font-serif text-3xl font-semibold text-foreground mb-4">
           Pagamento Confirmado!
         </h1>
+
         <p className="text-muted-foreground mb-2">
           Seu ingresso <strong>{tierConfig.name}</strong> foi confirmado.
         </p>
+
         <p className="text-muted-foreground mb-8">
           Você receberá um e-mail com os detalhes.
         </p>
-        <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+
+        <Button
+          onClick={() => navigate("/")}
+          variant="outline"
+          className="w-full"
+        >
           Voltar para o site
         </Button>
       </div>
@@ -183,7 +205,6 @@ const SuccessView = ({ tier }: { tier: TierId }) => {
   );
 };
 
-// Main checkout page
 // Map old tier names to new ones for backwards compatibility
 const TIER_MAPPING: Record<string, TierId> = {
   individual: "basico",
@@ -207,6 +228,7 @@ const CheckoutPage = () => {
   const [step, setStep] = useState<"form" | "payment" | "success">(
     isSuccess ? "success" : "form"
   );
+
   const [formData, setFormData] = useState({
     fullName: "",
     birthDate: "",
@@ -216,13 +238,16 @@ const CheckoutPage = () => {
     email: "",
     phone: "",
   });
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+  const [elementsClientSecret, setElementsClientSecret] = useState<string | null>(
+    null
+  );
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const tierConfig = TIERS[tier] || TIERS.basico;
 
-  // Format CPF as user types
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, "").slice(0, 11);
     return numbers
@@ -231,7 +256,6 @@ const CheckoutPage = () => {
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   };
 
-  // Format CNPJ as user types
   const formatCNPJ = (value: string) => {
     const numbers = value.replace(/\D/g, "").slice(0, 14);
     return numbers
@@ -241,41 +265,45 @@ const CheckoutPage = () => {
       .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
   };
 
-  // Format phone as user types
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, "").slice(0, 11);
+
     if (numbers.length <= 10) {
       return numbers
         .replace(/(\d{2})(\d)/, "($1) $2")
         .replace(/(\d{4})(\d)/, "$1-$2");
     }
+
     return numbers
       .replace(/(\d{2})(\d)/, "($1) $2")
       .replace(/(\d{5})(\d)/, "$1-$2");
   };
 
-  // Format birth date as user types
   const formatBirthDate = (value: string) => {
     const numbers = value.replace(/\D/g, "").slice(0, 8);
-    return numbers
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2");
+    return numbers.replace(/(\d{2})(\d)/, "$1/$2").replace(/(\d{2})(\d)/, "$1/$2");
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (!formData.fullName || !formData.birthDate || !formData.cpf || !formData.areaAtuacao || !formData.email || !formData.phone) {
+    if (
+      !formData.fullName ||
+      !formData.birthDate ||
+      !formData.cpf ||
+      !formData.areaAtuacao ||
+      !formData.email ||
+      !formData.phone
+    ) {
       toast({
         title: "Preencha todos os campos obrigatórios",
-        description: "Nome, data de nascimento, CPF, área de atuação, e-mail e telefone são obrigatórios.",
+        description:
+          "Nome, data de nascimento, CPF, área de atuação, e-mail e telefone são obrigatórios.",
         variant: "destructive",
       });
       return;
     }
 
-    // Validate CPF length
     if (formData.cpf.replace(/\D/g, "").length !== 11) {
       toast({
         title: "CPF inválido",
@@ -285,7 +313,6 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Validate CNPJ if provided
     if (formData.cnpj && formData.cnpj.replace(/\D/g, "").length !== 14) {
       toast({
         title: "CNPJ inválido",
@@ -313,15 +340,52 @@ const CheckoutPage = () => {
 
       if (error) throw error;
 
-      if (data?.clientSecret) {
-        setClientSecret(data.clientSecret);
-        setOrderId(data.orderId);
-        setStep("payment");
-      } else {
-        throw new Error("Erro ao criar sessão de pagamento");
+      // ✅ Normaliza payload (string / nested / keys diferentes)
+      console.log("RAW data from invoke:", data);
+
+      let payload: any = data;
+      if (typeof payload === "string") {
+        payload = JSON.parse(payload);
       }
+      if (payload?.data) payload = payload.data;
+
+      console.log("PAYLOAD parsed:", payload);
+
+      const elementsClientSecret =
+        payload?.elementsClientSecret ??
+        payload?.clientSecret ?? // ✅ seu backend retorna isso
+        payload?.paymentIntentClientSecret ??
+        payload?.payment_intent_client_secret;
+
+      const paymentIntentId =
+        payload?.paymentIntentId ??
+        payload?.payment_intent_id ??
+        payload?.paymentIntent?.id;
+
+
+
+      console.log("elementsClientSecret:", elementsClientSecret);
+      console.log("paymentIntentId:", paymentIntentId);
+
+      // trava ANTES de renderizar Stripe
+      if (!elementsClientSecret || !String(elementsClientSecret).includes("_secret_")) {
+        throw new Error("elementsClientSecret inválido: deveria conter _secret_");
+      }
+      if (!paymentIntentId || !String(paymentIntentId).startsWith("pi_")) {
+        throw new Error("paymentIntentId inválido");
+      }
+
+
+      setElementsClientSecret(elementsClientSecret);
+      setPaymentIntentId(paymentIntentId);
+
+      setOrderId(payload?.orderId || payload?.order_id || null);
+
+      setStep("payment");
+
     } catch (error) {
       console.error("Error creating payment intent:", error);
+
       toast({
         title: "Erro",
         description: "Não foi possível iniciar o pagamento. Tente novamente.",
@@ -333,16 +397,16 @@ const CheckoutPage = () => {
   };
 
   const handlePaymentSuccess = async () => {
-    // Confirm payment status
-    if (orderId) {
-      try {
+    try {
+      if (paymentIntentId) {
         await supabase.functions.invoke("confirm-payment", {
-          body: { paymentIntentId: clientSecret?.split("_secret_")[0] },
+          body: { paymentIntentId },
         });
-      } catch (e) {
-        console.error("Error confirming payment:", e);
       }
+    } catch (e) {
+      console.error("Error confirming payment:", e);
     }
+
     setStep("success");
   };
 
@@ -372,15 +436,18 @@ const CheckoutPage = () => {
             <h2 className="font-serif text-xl font-semibold text-foreground mb-4">
               Resumo do Pedido
             </h2>
+
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="font-medium text-foreground">
                   Ingresso {tierConfig.name}
                 </p>
+
                 <p className="text-sm text-muted-foreground">
                   {tierConfig.description}
                 </p>
               </div>
+
               <p className="font-serif text-2xl font-bold text-primary">
                 {tierConfig.price}
               </p>
@@ -417,7 +484,10 @@ const CheckoutPage = () => {
                     placeholder="DD/MM/AAAA"
                     value={formData.birthDate}
                     onChange={(e) =>
-                      setFormData({ ...formData, birthDate: formatBirthDate(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        birthDate: formatBirthDate(e.target.value),
+                      })
                     }
                     required
                   />
@@ -445,7 +515,10 @@ const CheckoutPage = () => {
                     placeholder="00.000.000/0000-00"
                     value={formData.cnpj}
                     onChange={(e) =>
-                      setFormData({ ...formData, cnpj: formatCNPJ(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        cnpj: formatCNPJ(e.target.value),
+                      })
                     }
                   />
                 </div>
@@ -493,7 +566,10 @@ const CheckoutPage = () => {
                     placeholder="(11) 99999-9999"
                     value={formData.phone}
                     onChange={(e) =>
-                      setFormData({ ...formData, phone: formatPhone(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        phone: formatPhone(e.target.value),
+                      })
                     }
                     required
                   />
@@ -518,7 +594,7 @@ const CheckoutPage = () => {
           )}
 
           {/* Payment step */}
-          {step === "payment" && clientSecret && (
+          {step === "payment" && elementsClientSecret && (
             <div className="bg-background rounded-2xl border border-border/50 p-6">
               <h2 className="font-serif text-xl font-semibold text-foreground mb-6">
                 Pagamento
@@ -527,7 +603,7 @@ const CheckoutPage = () => {
               <Elements
                 stripe={stripePromise}
                 options={{
-                  clientSecret,
+                  clientSecret: elementsClientSecret,
                   appearance: {
                     theme: "stripe",
                     variables: {
@@ -537,7 +613,7 @@ const CheckoutPage = () => {
                   },
                   locale: "pt-BR",
                 }}
-                key={clientSecret}
+                key={elementsClientSecret}
               >
                 <CheckoutForm orderId={orderId} onSuccess={handlePaymentSuccess} />
               </Elements>
