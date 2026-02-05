@@ -4,6 +4,7 @@ const days = [
   {
     day: "Dia 1",
     date: "6 de Março",
+    time: "14h às 20h",
     title: "Diagnóstico",
     subtitle: "Auditoria completa do seu negócio",
     icon: Search,
@@ -18,6 +19,7 @@ const days = [
   {
     day: "Dia 2",
     date: "7 de Março",
+    time: "10h às 20h",
     title: "Estratégia",
     subtitle: "Correção e direcionamento",
     icon: Wrench,
@@ -66,6 +68,7 @@ const ScheduleSection = () => {
                     <dayInfo.icon className="w-4 h-4 text-primary" />
                     <span className="text-sm font-semibold text-foreground">{dayInfo.day}</span>
                     <span className="text-sm text-muted-foreground">• {dayInfo.date}</span>
+                    <span className="text-sm text-muted-foreground">• {dayInfo.time}</span>
                   </div>
                   
                   {/* Title */}
