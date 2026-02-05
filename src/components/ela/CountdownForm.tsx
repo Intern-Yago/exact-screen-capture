@@ -52,12 +52,7 @@ const CountdownForm = () => {
 
       if (error) {
         console.error("Edge Function error:", error);
-        // Fallback para a tabela do Supabase caso a function falhe ou não esteja implantada
-        const { error: supabaseError } = await supabase
-          .from("leads")
-          .insert([{ email, phone }]);
-        
-        if (supabaseError) throw supabaseError;
+        throw new Error("Falha ao salvar lead: " + error.message);
       }
 
       toast({
