@@ -7,15 +7,21 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let client;
   try {
     const { email, phone } = await req.json();
 
-    // Connect to MySQL using existing env vars
-    const client = await new Client().connect({
+    if (!email || !phone) {
+      throw new Error("Email e telefone são obrigatórios");
+    }
+
+    // Connect to MySQL using environment variables
+    client = await new Client().connect({
       hostname: Deno.env.get("MYSQL_HOST") || "",
       username: Deno.env.get("MYSQL_USER") || "",
       password: Deno.env.get("MYSQL_PASSWORD") || "",
@@ -23,29 +29,27 @@ serve(async (req) => {
       port: 3306,
     });
 
-    // Create leads table if not exists
+    // Create leads table if not exists (MySQL Syntax)
     await client.execute(`
       CREATE TABLE IF NOT EXISTS leads (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
         phone VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    // Insert lead
+    // Insert lead into MySQL
     const result = await client.execute(
       `INSERT INTO leads (email, phone) VALUES (?, ?)`,
       [email, phone]
     );
 
-    await client.close();
-
     return new Response(
       JSON.stringify({ 
         success: true, 
         leadId: result.lastInsertId,
-        message: "Lead saved to MySQL successfully" 
+        message: "Lead salvo no MySQL com sucesso" 
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -54,9 +58,21 @@ serve(async (req) => {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    console.error("Erro na Edge Function:", errorMessage);
+    
+    return new Response(
+      JSON.stringify({ 
+        error: errorMessage,
+        details: "Verifique se as variáveis de ambiente MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD e MYSQL_DATABASE estão configuradas no Supabase."
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
 });
