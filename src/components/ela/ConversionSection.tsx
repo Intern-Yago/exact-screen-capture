@@ -34,7 +34,7 @@ const ConversionSection = () => {
             </div>
             <div className="flex items-center gap-2 text-foreground">
               <MapPin className="w-5 h-5 text-primary" />
-              <span className="font-medium">Brasília, DF</span>
+              <span className="font-medium">Casa Volpi - Park Way, Brasília/DF</span>
             </div>
           </div>
           
