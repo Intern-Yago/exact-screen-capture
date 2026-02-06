@@ -54,10 +54,10 @@ const Footer = () => {
                 Feito com <Heart className="w-4 h-4 text-primary fill-primary" /> por Isabela Lobato
               </p>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-background transition-colors">
+                <a href="/termos" className="hover:text-background transition-colors">
                   Política de Privacidade
                 </a>
-                <a href="#" className="hover:text-background transition-colors">
+                <a href="/termos" className="hover:text-background transition-colors">
                   Termos de Uso
                 </a>
               </div>
