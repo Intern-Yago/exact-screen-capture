@@ -20,7 +20,7 @@ const Footer = () => {
               <h4 className="font-semibold mb-4">O Evento</h4>
               <ul className="space-y-2 text-sm text-background/70">
                 <li>6 e 7 de Março de 2026</li>
-                <li>Brasília, DF</li>
+                <li>Casa Volpi - Park Way, Brasília/DF</li>
                 <li>Treinamento Presencial</li>
               </ul>
             </div>

@@ -8,7 +8,7 @@ import {
 const faqs = [
   {
     question: "Onde será o evento?",
-    answer: "O evento ELA acontecerá em Brasília, DF. O local exato será informado aos participantes após a confirmação da inscrição. Será um espaço premium, preparado para proporcionar a melhor experiência de aprendizado.",
+    answer: "O evento ELA acontecerá na Casa Volpi, localizada no Park Way, Brasília/DF. Um espaço premium, preparado para proporcionar a melhor experiência de aprendizado.",
   },
   {
     question: "Qual o horário dos dois dias?",

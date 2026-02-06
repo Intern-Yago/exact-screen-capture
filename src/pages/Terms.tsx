@@ -20,7 +20,7 @@ const Terms = () => {
           <section>
             <h2 className="font-serif text-2xl font-semibold text-foreground">2. Identificação da Instituição Responsável</h2>
             <p><strong>Instituição Organizadora:</strong> ELA – Empreendedorismo, Liderança e Autenticidade</p>
-            <p><strong>Natureza do Evento:</strong> Treinamento presencial voltado ao empreendedorismo feminino, com duração de dois dias, a ser realizado na cidade de Brasília/DF.</p>
+            <p><strong>Natureza do Evento:</strong> Treinamento presencial voltado ao empreendedorismo feminino, com duração de dois dias, a ser realizado na Casa Volpi – Park Way, Brasília/DF.</p>
             <p><strong>Finalidade do Site:</strong> O site tem como finalidade servir como meio oficial para <strong>inscrição, pagamento, comunicação e gerenciamento da participação</strong> das mulheres interessadas em participar do evento.</p>
           </section>
 
