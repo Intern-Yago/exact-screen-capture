@@ -105,7 +105,7 @@ const CountdownForm = () => {
         </div>
 
         {/* Form */}
-        <div className="max-w-md mx-auto bg-background border border-border/50 rounded-2xl p-8 shadow-lg">
+        <div id="formulario" className="max-w-md mx-auto bg-background border border-border/50 rounded-2xl p-8 shadow-lg" style={{ scrollMarginTop: 'calc(50vh - 200px)' }}>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>

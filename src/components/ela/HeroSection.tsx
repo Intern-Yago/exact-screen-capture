@@ -66,7 +66,7 @@ const HeroSection = () => {
               className="w-full sm:w-auto px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-lg shadow-primary/25"
               asChild
             >
-              <a href="#timer-section">
+              <a href="#formulario">
                 Garanta sua vaga no ELA
               </a>
             </Button>
