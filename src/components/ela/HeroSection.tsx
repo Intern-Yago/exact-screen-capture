@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, MessageCircle } from "lucide-react";
-import elaLogo from "@/assets/ELA-05.png";
+import elaLogo from "@/assets/ELA-04.png";
 import marbleBackground from "@/assets/marble-background.png";
 
 const HeroSection = () => {
