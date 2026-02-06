@@ -6,8 +6,10 @@ import {
   Heart, 
   Compass,
   Star,
-  Rocket
+  Rocket,
+  ArrowRight
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const benefits = [
   {
@@ -99,6 +101,20 @@ const BenefitsSection = () => {
                 <p className="text-sm text-muted-foreground">Acompanhamento mesmo após o evento</p>
               </div>
             </div>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12 text-center">
+            <Button 
+              size="lg" 
+              className="px-8 py-6 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-300 group"
+              asChild
+            >
+              <a href="#formulario" className="flex items-center gap-2">
+                Não quero ficar de fora
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </Button>
           </div>
         </div>
       </div>

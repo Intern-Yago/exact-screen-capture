@@ -44,7 +44,7 @@ const ConversionSection = () => {
             className="px-10 py-7 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-xl shadow-primary/30 group"
             asChild
           >
-            <a href="#timer-section" className="flex items-center gap-2">
+            <a href="#formulario" className="flex items-center gap-2">
               Quero ser avisada
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>

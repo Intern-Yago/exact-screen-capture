@@ -1,4 +1,5 @@
-import { Sparkles, Users, Target, Zap } from "lucide-react";
+import { Sparkles, Users, Target, Zap, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const features = [
   {
@@ -75,6 +76,20 @@ const AboutSection = () => {
             <p className="mt-4 text-muted-foreground font-medium">
               — Isabela Lobato
             </p>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12 text-center">
+            <Button 
+              size="lg" 
+              className="px-8 py-6 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-300 group"
+              asChild
+            >
+              <a href="#formulario" className="flex items-center gap-2">
+                Quero participar do ELA
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </Button>
           </div>
         </div>
       </div>
