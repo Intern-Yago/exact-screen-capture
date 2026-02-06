@@ -20,7 +20,7 @@ const Footer = () => {
               <h4 className="font-semibold mb-4">O Evento</h4>
               <ul className="space-y-2 text-sm text-background/70">
                 <li>6 e 7 de Março de 2026</li>
-                <li>Brasília, DF</li>
+                <li>Casa Volpi - Park Way, Brasília/DF</li>
                 <li>Treinamento Presencial</li>
               </ul>
             </div>
@@ -54,10 +54,10 @@ const Footer = () => {
                 Feito com <Heart className="w-4 h-4 text-primary fill-primary" /> por Isabela Lobato
               </p>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-background transition-colors">
+                <a href="/termos" className="hover:text-background transition-colors">
                   Política de Privacidade
                 </a>
-                <a href="#" className="hover:text-background transition-colors">
+                <a href="/termos" className="hover:text-background transition-colors">
                   Termos de Uso
                 </a>
               </div>
