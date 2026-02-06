@@ -9,6 +9,10 @@
    Estética: Feminina, delicada, minimalista e sofisticada
 */
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   :root {
     /* Rosa queimado / nude rosé como cor principal */
