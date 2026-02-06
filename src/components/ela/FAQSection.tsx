@@ -15,10 +15,6 @@ const faqs = [
     answer: "O evento acontece nos dias 6 e 7 de março de 2026. No dia 6, das 14h às 20h. No dia 7, das 10h às 20h. Intervalos para networking e coffee breaks inclusos.",
   },
   {
-    question: "Posso parcelar o ingresso?",
-    answer: "Sim! Oferecemos opções de parcelamento em até 12x no cartão de crédito. Entre em contato pelo WhatsApp para conhecer as condições especiais de pagamento.",
-  },
-  {
     question: "O evento é presencial ou online?",
     answer: "O ELA é 100% presencial. Acreditamos que a imersão presencial, as conexões pessoais e a energia do grupo são essenciais para a transformação que propomos.",
   },

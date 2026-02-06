@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, MessageCircle } from "lucide-react";
-import elaLogo from "@/assets/ela-logo.png";
+import elaLogo from "@/assets/ELA-05.png";
 import marbleBackground from "@/assets/marble-background.png";
 
 const HeroSection = () => {
@@ -77,7 +77,7 @@ const HeroSection = () => {
               className="w-full sm:w-auto px-8 py-6 text-lg font-medium border-2 border-primary/30 hover:bg-accent hover:border-primary/50 transition-all duration-300 bg-background/50 backdrop-blur-sm"
               asChild
             >
-              <a href="#whatsapp" className="flex items-center gap-2">
+              <a href="https://api.whatsapp.com/send?phone=55618578600&text=Ol%C3%A1%21%20Vim%20da%20landing%20page%20e%20queria%20saber%20mais%20sobre%20o%20evento%20ELA." className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5" />
                 Fale com nossa equipe
               </a>

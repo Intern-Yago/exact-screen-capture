@@ -30,14 +30,14 @@ const Footer = () => {
               <h4 className="font-semibold mb-4">Contato</h4>
               <div className="flex gap-4">
                 <a 
-                  href="#" 
+                  href="https://www.instagram.com/elaparamulheres/?utm_source=ig_web_button_share_sheet" 
                   className="w-10 h-10 rounded-full bg-background/10 hover:bg-background/20 flex items-center justify-center transition-colors"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a 
-                  href="#whatsapp" 
+                  href="https://api.whatsapp.com/send?phone=55618578600&text=Ol%C3%A1%21%20Vim%20da%20landing%20page%20e%20queria%20saber%20mais%20sobre%20o%20evento%20ELA." 
                   className="w-10 h-10 rounded-full bg-background/10 hover:bg-background/20 flex items-center justify-center transition-colors"
                   aria-label="WhatsApp"
                 >
