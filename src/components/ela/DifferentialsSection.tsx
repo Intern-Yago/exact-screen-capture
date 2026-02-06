@@ -1,4 +1,5 @@
-import { Check, X } from "lucide-react";
+import { Check, X, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const differentials = [
   {
@@ -75,6 +76,20 @@ const DifferentialsSection = () => {
                 </p>
               </div>
             ))}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12 text-center">
+            <Button 
+              size="lg" 
+              className="px-8 py-6 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-300 group"
+              asChild
+            >
+              <a href="#formulario" className="flex items-center gap-2">
+                Garanta sua vaga
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </Button>
           </div>
         </div>
       </div>

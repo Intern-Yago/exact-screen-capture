@@ -1,4 +1,5 @@
 import { Search, Wrench, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const days = [
   {
@@ -95,12 +96,24 @@ const ScheduleSection = () => {
           
           {/* Result highlight */}
           <div className="mt-12 text-center">
-            <div className="inline-block px-8 py-4 rounded-2xl bg-primary/10 border border-primary/20">
+            <div className="inline-block px-8 py-4 rounded-2xl bg-primary/10 border border-primary/20 mb-8">
               <p className="font-serif text-lg md:text-xl text-foreground">
                 ✨ Você sai com <span className="text-primary font-semibold">decisões</span>, 
                 <span className="text-primary font-semibold"> estrutura</span> e 
                 <span className="text-primary font-semibold"> clareza</span>
               </p>
+            </div>
+            <div>
+              <Button 
+                size="lg" 
+                className="px-8 py-6 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-300 group"
+                asChild
+              >
+                <a href="#formulario" className="flex items-center gap-2">
+                  Quero minha vaga no ELA
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </Button>
             </div>
           </div>
         </div>
