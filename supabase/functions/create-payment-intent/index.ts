@@ -72,7 +72,7 @@ serve(async (req) => {
     }
 
     const stripe = new Stripe(stripeKey, {
-      apiVersion: "2026-01-28.clover",
+      apiVersion: "2025-08-27.basil",
     });
 
     // Find or create Stripe customer
@@ -142,17 +142,7 @@ serve(async (req) => {
       amount: tierConfig.amount,
     });
 
-    /**
-     * ✅ AQUI ESTÁ A CORREÇÃO PRINCIPAL
-     * Agora criamos uma Elements Session para o Stripe PaymentElement
-     */
-    const elementsSession = await stripe.elements.sessions.create({
-      payment_intent: paymentIntent.id,
-    });
-
-    logStep("Elements Session created", {
-      elementsSessionId: elementsSession.id,
-    });
+    // client_secret from PaymentIntent is sufficient for Elements
 
     // Create order in Supabase database
     const { data: order, error: orderError } = await supabase
